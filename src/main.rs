@@ -1,3 +1,4 @@
+use billboard::{Alignment, Billboard, BorderStyle};
 use chrono::{Duration, TimeZone, Utc};
 use colored::*;
 
@@ -12,8 +13,8 @@ struct WindowDate {
 }
 
 fn main() {
-    let last_date = Utc.ymd(2021, 05, 30);
-    let avg_cycle_days = 25;
+    let last_date = Utc.ymd(2021, 05, 28);
+    let avg_cycle_days = 26;
 
     // compute next period
     let next_period_date = last_date + Duration::days(avg_cycle_days - 1);
@@ -51,29 +52,45 @@ fn main() {
             .to_string(),
     };
 
-    println!(
-        "{}: {}-{} {}",
-        "Fertile Window".green(),
+    let result = String::from(format!(
+        "{}: {}-{} {}
+{}: {} {}
+{}: {} {}
+{}: {} {}",
+        "Fertile Window".green().bold(),
         fertile_window.start,
         fertile_window.end,
-        fertile_window.month
-    );
-    println!(
-        "{}: {} {}",
-        "Approximate Ovulation".purple(),
+        fertile_window.month,
+        "Approximate Ovulation".purple().bold(),
         approximate_ovulation.day,
         approximate_ovulation.month,
-    );
-    println!(
-        "{}: {} {}",
-        "Next Period".yellow(),
+        "Next Period".yellow().bold(),
         next_period.day,
-        next_period.month
-    );
-    println!(
-        "{}: {} {}",
-        "Pregnancy Test Day:".blue(),
+        next_period.month,
+        "Pregnancy Test Day:".blue().bold(),
         next_pregnancy_test.day,
         next_pregnancy_test.month,
-    );
+    ));
+
+    Billboard::builder()
+        .padding(1)
+        .margin(1)
+        .text_alignment(Alignment::Left)
+        .box_alignment(Alignment::Left)
+        .build()
+        .display(&String::from(format!(
+            "{}: {}",
+            "Rustovuli".magenta().bold(),
+            "Ovulation Cycle Calculator".italic()
+        )));
+
+    Billboard::builder()
+        .padding(1)
+        .margin(1)
+        .text_alignment(Alignment::Left)
+        .box_alignment(Alignment::Left)
+        .border_style(BorderStyle::Double)
+        .border_color(billboard::BorderColor::Yellow)
+        .build()
+        .display(&result);
 }
