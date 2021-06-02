@@ -19,7 +19,58 @@ struct UserData<T> {
     avg_cycle_days: T,
 }
 
-struct Rustovuli {}
+struct Rustovuli {
+    fertile_window: WindowDate,
+    approximate_ovulation: SimpleDate,
+    next_period: SimpleDate,
+    next_pregnancy_test: SimpleDate,
+}
+
+impl Rustovuli {
+    fn compute(user_data: &UserData<u16>) -> Rustovuli {
+        // compute next period
+        let next_period_date =
+            user_data.last_period_date + Duration::days(user_data.avg_cycle_days as i64 - 1);
+
+        // compute next pregnancy test date
+        let next_pregnancy_test_date =
+            user_data.last_period_date + Duration::days(user_data.avg_cycle_days as i64);
+
+        // compute ovulation date
+        const MAX_OVULATION_DAYS: u16 = 26;
+        let current_pregnancy_cycle = 40 - user_data.avg_cycle_days;
+        let ovulation_days = MAX_OVULATION_DAYS - current_pregnancy_cycle - 1;
+        let approximate_ovulation_date =
+            user_data.last_period_date + Duration::days(ovulation_days as i64);
+
+        return Rustovuli {
+            next_period: SimpleDate {
+                day: next_period_date.format("%d").to_string(),
+                month: next_period_date.format("%b").to_string(),
+            },
+            next_pregnancy_test: SimpleDate {
+                day: next_pregnancy_test_date.format("%d").to_string(),
+                month: next_pregnancy_test_date.format("%b").to_string(),
+            },
+            approximate_ovulation: SimpleDate {
+                day: approximate_ovulation_date.format("%d").to_string(),
+                month: approximate_ovulation_date.format("%b").to_string(),
+            },
+            fertile_window: WindowDate {
+                start: (approximate_ovulation_date - Duration::days(3))
+                    .format("%d")
+                    .to_string(),
+                end: (approximate_ovulation_date + Duration::days(1))
+                    .format("%d")
+                    .to_string(),
+                month: (approximate_ovulation_date - Duration::days(3))
+                    .format("%b")
+                    .to_string(),
+            },
+        };
+    }
+}
+
 const DATE_FORMAT: &str = "%Y-%m-%d";
 
 fn fetch_user_data() -> Result<UserData<u16>, String> {
@@ -67,66 +118,25 @@ fn fetch_user_data() -> Result<UserData<u16>, String> {
     Ok(user_data)
 }
 
-fn main() -> Result<(), String> {
-    let user_data = fetch_user_data().expect("Failed to read your input");
-
-    // compute next period
-    let next_period_date =
-        user_data.last_period_date + Duration::days(user_data.avg_cycle_days as i64 - 1);
-    let next_period = SimpleDate {
-        day: next_period_date.format("%d").to_string(),
-        month: next_period_date.format("%b").to_string(),
-    };
-
-    // compute next pregnancy test date
-    let next_pregnancy_test_date =
-        user_data.last_period_date + Duration::days(user_data.avg_cycle_days as i64);
-    let next_pregnancy_test = SimpleDate {
-        day: next_pregnancy_test_date.format("%d").to_string(),
-        month: next_pregnancy_test_date.format("%b").to_string(),
-    };
-
-    // compute ovulation date
-    const MAX_OVULATION_DAYS: u16 = 26;
-    let current_pregnancy_cycle = 40 - user_data.avg_cycle_days;
-    let ovulation_days = MAX_OVULATION_DAYS - current_pregnancy_cycle - 1;
-    let approximate_ovulation_date =
-        user_data.last_period_date + Duration::days(ovulation_days as i64);
-    let approximate_ovulation = SimpleDate {
-        day: approximate_ovulation_date.format("%d").to_string(),
-        month: approximate_ovulation_date.format("%b").to_string(),
-    };
-
-    let fertile_window = WindowDate {
-        start: (approximate_ovulation_date - Duration::days(3))
-            .format("%d")
-            .to_string(),
-        end: (approximate_ovulation_date + Duration::days(1))
-            .format("%d")
-            .to_string(),
-        month: (approximate_ovulation_date - Duration::days(3))
-            .format("%b")
-            .to_string(),
-    };
-
-    let result = String::from(format!(
+fn print_output(rustovuli_data: &Rustovuli) {
+    let formated_output = String::from(format!(
         "{}: {}-{} {}
 {}: {} {}
 {}: {} {}
 {}: {} {}",
         "Fertile Window".green().bold(),
-        fertile_window.start,
-        fertile_window.end,
-        fertile_window.month,
+        rustovuli_data.fertile_window.start,
+        rustovuli_data.fertile_window.end,
+        rustovuli_data.fertile_window.month,
         "Approximate Ovulation".purple().bold(),
-        approximate_ovulation.day,
-        approximate_ovulation.month,
+        rustovuli_data.approximate_ovulation.day,
+        rustovuli_data.approximate_ovulation.month,
         "Next Period".yellow().bold(),
-        next_period.day,
-        next_period.month,
+        rustovuli_data.next_period.day,
+        rustovuli_data.next_period.month,
         "Pregnancy Test Day".blue().bold(),
-        next_pregnancy_test.day,
-        next_pregnancy_test.month,
+        rustovuli_data.next_pregnancy_test.day,
+        rustovuli_data.next_pregnancy_test.month,
     ));
 
     Billboard::builder()
@@ -149,9 +159,14 @@ fn main() -> Result<(), String> {
         .border_style(BorderStyle::Double)
         .border_color(billboard::BorderColor::Yellow)
         .build()
-        .display(&result);
-    // // return a new error from main that said what happened!
-    // return Err(String::from("something went wrong in main!"));
+        .display(&formated_output);
+}
+fn main() -> Result<(), String> {
+    let user_data = fetch_user_data().expect("Failed to read your input");
+
+    let result = Rustovuli::compute(&user_data);
+
+    print_output(&result);
 
     Ok(())
 }
