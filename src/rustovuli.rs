@@ -3,13 +3,19 @@ use chrono::{Duration, NaiveDate, Utc};
 use colored::*;
 use dialoguer::Input;
 use regex::Regex;
+use serde::{Deserialize, Serialize};
+use serde_json::json;
+use serde_json::Result as ResultSerde;
 
 const DATE_FORMAT: &str = "%Y-%m-%d";
 
+#[derive(Serialize, Deserialize)]
 struct SimpleDate {
     day: String,
     month: String,
 }
+
+#[derive(Serialize, Deserialize)]
 struct WindowDate {
     start: String,
     end: String,
@@ -21,6 +27,7 @@ pub struct UserInput<T> {
     avg_cycle_days: T,
 }
 
+#[derive(Serialize, Deserialize)]
 pub struct UserData {
     fertile_window: WindowDate,
     approximate_ovulation: SimpleDate,
@@ -151,4 +158,12 @@ pub fn print_output(rustovuli_data: &UserData) {
         .border_color(billboard::BorderColor::Yellow)
         .build()
         .display(&formated_output);
+}
+
+pub fn print_user_data_json(user_data_history: &[&UserData]) -> ResultSerde<()> {
+    let k = serde_json::to_string(&user_data_history)?;
+
+    println!("{}", k);
+
+    Ok(())
 }
