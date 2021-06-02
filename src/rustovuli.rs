@@ -120,10 +120,13 @@ pub fn fetch_user_data() -> Result<UserInput<u16>, String> {
 
 pub fn print_output(rustovuli_data: &UserData) {
     let formated_output = String::from(format!(
-        "{}: {}-{} {}
+        "{}: {}\n\n
+{}: {}-{} {}
 {}: {} {}
 {}: {} {}
 {}: {} {}",
+        "Rustovuli".magenta().bold(),
+        "Ovulation Cycle Calculator".italic(),
         "Fertile Window".green().bold(),
         rustovuli_data.fertile_window.start,
         rustovuli_data.fertile_window.end,
@@ -138,18 +141,6 @@ pub fn print_output(rustovuli_data: &UserData) {
         rustovuli_data.next_pregnancy_test.day,
         rustovuli_data.next_pregnancy_test.month,
     ));
-
-    Billboard::builder()
-        .padding(1)
-        .margin(1)
-        .text_alignment(Alignment::Left)
-        .box_alignment(Alignment::Left)
-        .build()
-        .display(&String::from(format!(
-            "{}: {}",
-            "Rustovuli".magenta().bold(),
-            "Ovulation Cycle Calculator".italic()
-        )));
 
     Billboard::builder()
         .padding(1)
