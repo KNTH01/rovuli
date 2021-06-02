@@ -1,6 +1,8 @@
 use billboard::{Alignment, Billboard, BorderStyle};
-use chrono::{Duration, TimeZone, Utc};
+use chrono::{Duration, NaiveDate, Utc};
 use colored::*;
+use dialoguer::Input;
+use regex::Regex;
 
 struct SimpleDate {
     day: String,
@@ -11,10 +13,38 @@ struct WindowDate {
     end: String,
     month: String,
 }
-
 fn main() {
-    let last_date = Utc.ymd(2021, 05, 28);
-    let avg_cycle_days = 26;
+    const DATE_FORMAT: &str = "%Y-%m-%d";
+
+    let last_date_input: String = Input::new()
+        .validate_with(|input: &String| -> Result<(), &str> {
+            let re = Regex::new(r"^\d{4}-\d{2}-\d{2}$").unwrap();
+            if re.is_match(input) {
+                Ok(())
+            } else {
+                Err("This is not valid date")
+            }
+        })
+        .with_prompt("Enter the first day of your last period (YYYY-MM-DD)")
+        .with_initial_text(Utc::now().format(DATE_FORMAT).to_string())
+        .default("No".into())
+        .interact_text()
+        .unwrap();
+
+    let avg_cycle_days_input: String = Input::new()
+        .validate_with(|input: &String| -> Result<(), &str> {
+            match input.parse::<u32>() {
+                Ok(_v) => Ok(()),
+                Err(_e) => Err("It must be a number"),
+            }
+        })
+        .with_prompt("How long is your average cycle (in Days)?")
+        .default(String::from("25"))
+        .interact_text()
+        .unwrap();
+
+    let last_date = NaiveDate::parse_from_str(&last_date_input, DATE_FORMAT).unwrap();
+    let avg_cycle_days = avg_cycle_days_input.parse().unwrap();
 
     // compute next period
     let next_period_date = last_date + Duration::days(avg_cycle_days - 1);
@@ -67,7 +97,7 @@ fn main() {
         "Next Period".yellow().bold(),
         next_period.day,
         next_period.month,
-        "Pregnancy Test Day:".blue().bold(),
+        "Pregnancy Test Day".blue().bold(),
         next_pregnancy_test.day,
         next_pregnancy_test.month,
     ));
