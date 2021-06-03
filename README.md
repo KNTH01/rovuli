@@ -1,7 +1,7 @@
-# Rustovuli
+# Rovuli
 
-I'm writing this program as I'm learning Rust.
+This is my first program in Rust.
 
-## Credits
+## Inspirations
 
-https://github.com/teamxenox/ovuli-cli
+Credits to: https://github.com/teamxenox/ovuli-cli
