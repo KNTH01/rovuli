@@ -9,19 +9,6 @@ use serde_json::Result as ResultSerde;
 
 const DATE_FORMAT: &str = "%Y-%m-%d";
 
-#[derive(Serialize, Deserialize)]
-struct SimpleDate {
-    day: String,
-    month: String,
-}
-
-#[derive(Serialize, Deserialize)]
-struct WindowDate {
-    start: String,
-    end: String,
-    month: String,
-}
-
 pub struct UserInput<T> {
     last_period_date: NaiveDate,
     avg_cycle_days: T,
@@ -29,22 +16,14 @@ pub struct UserInput<T> {
 
 #[derive(Serialize, Deserialize)]
 pub struct UserData {
-    fertile_window: WindowDate,
-    approximate_ovulation: SimpleDate,
-    next_period: SimpleDate,
-    next_pregnancy_test: SimpleDate,
+    fertile_window: (NaiveDate, NaiveDate),
+    approximate_ovulation: NaiveDate,
+    next_period: NaiveDate,
+    next_pregnancy_test: NaiveDate,
 }
 
 impl UserData {
     pub fn compute(user_data: &UserInput<u16>) -> UserData {
-        // compute next period
-        let next_period_date =
-            user_data.last_period_date + Duration::days(user_data.avg_cycle_days as i64 - 1);
-
-        // compute next pregnancy test date
-        let next_pregnancy_test_date =
-            user_data.last_period_date + Duration::days(user_data.avg_cycle_days as i64);
-
         // compute ovulation date
         const MAX_OVULATION_DAYS: u16 = 26;
         let current_pregnancy_cycle = 40 - user_data.avg_cycle_days;
@@ -53,29 +32,15 @@ impl UserData {
             user_data.last_period_date + Duration::days(ovulation_days as i64);
 
         return UserData {
-            next_period: SimpleDate {
-                day: next_period_date.format("%d").to_string(),
-                month: next_period_date.format("%b").to_string(),
-            },
-            next_pregnancy_test: SimpleDate {
-                day: next_pregnancy_test_date.format("%d").to_string(),
-                month: next_pregnancy_test_date.format("%b").to_string(),
-            },
-            approximate_ovulation: SimpleDate {
-                day: approximate_ovulation_date.format("%d").to_string(),
-                month: approximate_ovulation_date.format("%b").to_string(),
-            },
-            fertile_window: WindowDate {
-                start: (approximate_ovulation_date - Duration::days(3))
-                    .format("%d")
-                    .to_string(),
-                end: (approximate_ovulation_date + Duration::days(1))
-                    .format("%d")
-                    .to_string(),
-                month: (approximate_ovulation_date - Duration::days(3))
-                    .format("%b")
-                    .to_string(),
-            },
+            next_period: user_data.last_period_date
+                + Duration::days(user_data.avg_cycle_days as i64 - 1),
+            next_pregnancy_test: user_data.last_period_date
+                + Duration::days(user_data.avg_cycle_days as i64),
+            approximate_ovulation: approximate_ovulation_date,
+            fertile_window: (
+                approximate_ovulation_date - Duration::days(3),
+                approximate_ovulation_date + Duration::days(1),
+            ),
         };
     }
 }
@@ -126,6 +91,13 @@ pub fn fetch_user_data() -> Result<UserInput<u16>, String> {
 }
 
 pub fn print_output(rovuli_data: &UserData) {
+    fn get_format_day(date: NaiveDate) -> String {
+        date.format("%d").to_string()
+    }
+    fn get_format_month(date: NaiveDate) -> String {
+        date.format("%b").to_string()
+    }
+
     let formated_output = String::from(format!(
         "{}: {}\n\n
 {}: {}-{} {}
@@ -135,18 +107,18 @@ pub fn print_output(rovuli_data: &UserData) {
         "rovuli".magenta().bold(),
         "Ovulation Cycle Calculator".italic(),
         "Fertile Window".green().bold(),
-        rovuli_data.fertile_window.start,
-        rovuli_data.fertile_window.end,
-        rovuli_data.fertile_window.month,
+        get_format_day(rovuli_data.fertile_window.0),
+        get_format_day(rovuli_data.fertile_window.1),
+        get_format_month(rovuli_data.fertile_window.0),
         "Approximate Ovulation".purple().bold(),
-        rovuli_data.approximate_ovulation.day,
-        rovuli_data.approximate_ovulation.month,
+        get_format_day(rovuli_data.approximate_ovulation),
+        get_format_month(rovuli_data.approximate_ovulation),
         "Next Period".yellow().bold(),
-        rovuli_data.next_period.day,
-        rovuli_data.next_period.month,
+        get_format_day(rovuli_data.next_period),
+        get_format_month(rovuli_data.next_period),
         "Pregnancy Test Day".blue().bold(),
-        rovuli_data.next_pregnancy_test.day,
-        rovuli_data.next_pregnancy_test.month,
+        get_format_day(rovuli_data.next_pregnancy_test),
+        get_format_month(rovuli_data.next_pregnancy_test),
     ));
 
     Billboard::builder()
