@@ -1,5 +1,5 @@
 [package]
-name = "rustovuli"
+name = "rovuli"
 version = "0.1.0"
 authors = ["Kevin Nguyen <kevin.tuanhuy.nguyen@gmail.com>"]
 edition = "2018"

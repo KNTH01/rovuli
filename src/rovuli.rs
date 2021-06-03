@@ -125,28 +125,28 @@ pub fn fetch_user_data() -> Result<UserInput<u16>, String> {
     Ok(user_data)
 }
 
-pub fn print_output(rustovuli_data: &UserData) {
+pub fn print_output(rovuli_data: &UserData) {
     let formated_output = String::from(format!(
         "{}: {}\n\n
 {}: {}-{} {}
 {}: {} {}
 {}: {} {}
 {}: {} {}",
-        "Rustovuli".magenta().bold(),
+        "rovuli".magenta().bold(),
         "Ovulation Cycle Calculator".italic(),
         "Fertile Window".green().bold(),
-        rustovuli_data.fertile_window.start,
-        rustovuli_data.fertile_window.end,
-        rustovuli_data.fertile_window.month,
+        rovuli_data.fertile_window.start,
+        rovuli_data.fertile_window.end,
+        rovuli_data.fertile_window.month,
         "Approximate Ovulation".purple().bold(),
-        rustovuli_data.approximate_ovulation.day,
-        rustovuli_data.approximate_ovulation.month,
+        rovuli_data.approximate_ovulation.day,
+        rovuli_data.approximate_ovulation.month,
         "Next Period".yellow().bold(),
-        rustovuli_data.next_period.day,
-        rustovuli_data.next_period.month,
+        rovuli_data.next_period.day,
+        rovuli_data.next_period.month,
         "Pregnancy Test Day".blue().bold(),
-        rustovuli_data.next_pregnancy_test.day,
-        rustovuli_data.next_pregnancy_test.month,
+        rovuli_data.next_pregnancy_test.day,
+        rovuli_data.next_pregnancy_test.month,
     ));
 
     Billboard::builder()
@@ -167,3 +167,14 @@ pub fn print_user_data_json(user_data_history: &[&UserData]) -> ResultSerde<()> 
 
     Ok(())
 }
+
+// [
+//   {
+// should be date range
+//     "fertile_window": { "start": "09", "end": "13", "month": "Jun" },
+// should be dates
+//     "approximate_ovulation": { "day": "12", "month": "Jun" },
+//     "next_period": { "day": "26", "month": "Jun" },
+//     "next_pregnancy_test": { "day": "27", "month": "Jun" }
+//   }
+// ]

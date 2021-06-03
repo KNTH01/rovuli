@@ -1,4 +1,4 @@
-# Rovuli
+# rovuli
 
 This is my first program in Rust.
 
