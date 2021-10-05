@@ -6,7 +6,7 @@ fn main() -> Result<(), String> {
 
     rovuli::print_output(&result);
 
-    rovuli::print_user_data_json(&vec![&result]);
+    rovuli::print_user_data_json(&vec![&result]).ok();
 
     Ok(())
 }
