@@ -1,11 +1,11 @@
-use rovuli::{user_io};
+use rovuli::{user_io, UserData};
 
 fn main() -> Result<(), String> {
-    let user_input = user_io::fetch_user_data().expect("Failed to read your input");
-    let result = rovuli::UserData::compute(&user_input);
+    let user_input = user_io::prompt_input().expect("Failed to read your input");
+    let user_data = UserData::compute(&user_input);
 
-    user_io::print_output(&result);
-    user_io::print_user_data_json(&vec![&result]).ok();
+    user_io::print(&user_data);
+    user_io::print_json(&vec![&user_data]).ok();
 
     Ok(())
 }

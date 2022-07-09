@@ -14,7 +14,7 @@ pub struct UserInput<T> {
     pub avg_cycle_days: T,
 }
 
-pub fn fetch_user_data() -> Result<UserInput<u16>, String> {
+pub fn prompt_input() -> Result<UserInput<u16>, String> {
     let today = Utc::now().format(DATE_FORMAT).to_string();
     let default_avg_cycle_days = String::from("25");
 
@@ -59,7 +59,7 @@ pub fn fetch_user_data() -> Result<UserInput<u16>, String> {
     Ok(user_data)
 }
 
-pub fn print_output(rovuli_data: &UserData) {
+pub fn print(rovuli_data: &UserData) {
     fn get_format_day(date: NaiveDate) -> String {
         date.format("%d").to_string()
     }
@@ -101,7 +101,7 @@ pub fn print_output(rovuli_data: &UserData) {
         .display(&formated_output);
 }
 
-pub fn print_user_data_json(user_data_history: &[&UserData]) -> ResultSerde<()> {
+pub fn print_json(user_data_history: &[&UserData]) -> ResultSerde<()> {
     let k = serde_json::to_string(&user_data_history)?;
 
     println!("{}", k);
