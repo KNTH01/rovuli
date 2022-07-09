@@ -1,4 +1,4 @@
-mod rovuli;
+use rovuli;
 
 fn main() -> Result<(), String> {
     let user_input = rovuli::fetch_user_data().expect("Failed to read your input");
