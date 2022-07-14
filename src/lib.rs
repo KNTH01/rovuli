@@ -12,8 +12,8 @@ pub struct UserData {
 }
 
 impl UserData {
+    /// compute ovulation date
     pub fn compute(user_data: &user_io::UserInput<u16>) -> UserData {
-        // compute ovulation date
         const MAX_OVULATION_DAYS: u16 = 26;
         let current_pregnancy_cycle = 40 - user_data.avg_cycle_days;
         let ovulation_days = MAX_OVULATION_DAYS - current_pregnancy_cycle - 1;
