@@ -20,7 +20,7 @@ impl UserData {
         let approximate_ovulation_date =
             user_data.last_period_date + Duration::days(ovulation_days as i64);
 
-        return UserData {
+        UserData {
             next_period: user_data.last_period_date
                 + Duration::days(user_data.avg_cycle_days as i64 - 1),
             next_pregnancy_test: user_data.last_period_date
@@ -30,6 +30,6 @@ impl UserData {
                 approximate_ovulation_date - Duration::days(3),
                 approximate_ovulation_date + Duration::days(1),
             ),
-        };
+        }
     }
 }
